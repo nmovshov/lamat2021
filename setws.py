@@ -9,7 +9,6 @@ else:
 
 rootd = hd+os.sep+'GitHub'+os.sep+'lamat2021'+os.sep
 sys.path.append(rootd)
-sys.path.append(rootd+os.sep+'..'+os.sep)
 del hd
 
 import observables
