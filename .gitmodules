@@ -1,3 +1,4 @@
 [submodule "krono"]
 	path = krono
 	url = https://github.com/chkvch/krono
+	branch = main
