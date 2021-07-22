@@ -16,6 +16,7 @@ z_eos = aneos_pure.eos('ice')
 
 debug = False
 user_params = {
+    'z1':0.5*0.015, # outer envelope metallicity (solar is ~0.015)
     'rio':2e-1, # Inner jump's outer (normalized) radius
     'roo':8e-1, # Outer jump's outer (normalized) radius
     'y2_xy':4e-1, # Deep helium mass fraction y/(x+y)=y/(1-z)
@@ -42,7 +43,7 @@ def run_one(par):
     params['drho_c'] = par['drho_c']
 
     # Create dual-cavity model mimicking a three-layer model
-    params['z1'] = 0.3*0.015 # outer envelope metallicity (solar is ~0.015)
+    params['z1'] = par['z1']
     params['z2'] = 0.5 # initial guess for inner envelope metallicity
     params['roo'] = par['roo']
     params['roi'] = par['roo'] - 1e-2 # effectively a jump
