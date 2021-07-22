@@ -17,10 +17,10 @@ z_eos = aneos_pure.eos('ice')
 debug = False
 user_params = {
     'z1':0.5*0.015, # outer envelope metallicity (solar is ~0.015)
-    'rio':2e-1, # Inner jump's outer (normalized) radius
-    'roo':8e-1, # Outer jump's outer (normalized) radius
-    'y2_xy':4e-1, # Deep helium mass fraction y/(x+y)=y/(1-z)
-    'drho_a':-0.1e-1, # Amplitude (drho/rho) of rho_hhe perturbation.
+    'rio':0.15, # Inner jump's outer (normalized) radius
+    'roo':0.8, # Outer jump's outer (normalized) radius
+    'y2_xy':0.28, # Deep helium mass fraction y/(x+y)=y/(1-z)
+    'drho_a':-0.0, # Amplitude (drho/rho) of rho_hhe perturbation.
     'drho_c':10. # Centroid logp of rho_hhe perturbation.
 }
 
@@ -31,6 +31,7 @@ def run_one(par):
 
     params = {} # will be passed to gravity and model instances
 
+    params['max_iters_outer'] = 200
     params['small'] = obs.m # dimensionless
     params['mtot'] = obs.M*1000
     params['req'] = obs.a0*100
