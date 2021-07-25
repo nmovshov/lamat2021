@@ -13,62 +13,63 @@ from krono.eos import mh13_scvh, aneos_pure
 
 def _main(args):
 
-    mass = const.mjup
-    gm = mass * const.cgrav
+    # Determine planet and load its observables
+    if args.planet.lower() == 'saturn':
+        obs = observables.Saturn_winds()
+    elif args.planet.lower() == 'jupiter':
+        obs = observables.Jupiter_tof4()
+    else:
+        raise ValueError(
+                f"Unsupported target planet {args.planet}.")
 
-    r_vol = const.rjup
-    r_pol = const.rjup_pol
-    r_eq = const.rjup_eq
+    # Make a directory to store output (currently hard coded in gravity)
+    # outdir = '{}_{}_output'.format(obs.pname,args.prefix)
+    # if not os.path.isdir(outdir):
+    #     os.mkdir(outdir)
+    # else:
+    #     print("\nWARNING: directory {} already exists, ".format(outdir))
+    #     print("files may be overwritten.\n")
 
-    rotation_period = 9.9259 * 60 * 60
-    omega_rot = 2. * np.pi / rotation_period
-    omega_dyn = np.sqrt(const.cgrav * mass / r_vol ** 3)
-    small = (omega_rot / omega_dyn) ** 2
-
-    print(small)
-
-    # z1, rstab, y2_xy, f_ice = 0.05927145799416273,    0.7068565323794515,    0.855706683903526,    0.04392185816793537    # from best model in chain n4
-
+    # Build the model parameters dict
     params = {}
-    params['small'] = small
-    params['adjust_small'] = False # if True, adjust the nondimensional spin parameter to preserve *dimensional* spin frequency as the model's mean radius changes during iterations
-    params['mtot'] = const.mjup
-    params['req'] = r_eq
-    params['nz'] = 4096
-    params['verbosity'] = 1
-    params['t1'] = 166. # sushil says that anywhere from 162 to 173-174 is compatible with Voyager occultation data near equator; galileo falls roughly in the middle of this
-    params['f_ice'] = 0.5
+    params['small'] = obs.m
+    params['adjust_small'] = args.adjust_mrot
+    params['mtot'] = obs.M*1000
+    params['req'] = obs.a0*100
+    params['nz'] = args.nzones
+    params['verbosity0'] = args.verbosity
+    params['t1'] = obs.T0
+    params['f_ice'] = args.f_ice
 
-    # composition choices
-    params['ymean_xy'] = 0.275 # M_He / (M_H + M_He); outer iterations will adjust y1_xy to satisfy this
-    # one of y1_xy or y2_xy will be adjusted during iterations to approach target ymean_xy, depending on value of argument y_adjust_qty passed to models.{twoLayerModel,etc} below
-    params['y1_xy'] = 0.238 # y/(x+y) outside outer cavity
-    params['y2_xy'] = 0.35 # y/(x+y) in inner envelope
-    params['z1'] = 0.015 # heavy element mass fraction outside inner cavity
-    params['z2'] = 0.045 # heavy element mass fraction within inner cavity
-    params['ri'] = 0.1 # core boundary fractional radius
-    params['ro'] = 0.85 # inner/outer envelope boundary fractional radius
+    params['ymean_xy'] = args.y_mean
+    params['y1_xy'] = args.y1
+    params['y2_xy'] = 0.35 # initial guess, adjusted by model
+    params['z1'] = args.z1
+    params['z2'] = args.z2
+    params['ri'] = args.rc
+    params['ro'] = args.rt
 
-    # relative tolerances
-    params['j2n_rtol']   = 1e-4
-    params['ymean_rtol'] = 1e-4
-    params['mtot_rtol']  = 1e-4
-    params['max_iters_outer'] = 199
+    params['j2n_rtol']   = args.J_tol
+    params['ymean_rtol'] = args.y_tol
+    params['mtot_rtol']  = args.M_tol
+    params['max_iters_outer'] = args.max_iters
 
-    params['use_gauss_lobatto'] = False
+    params['use_gauss_lobatto'] = args.use_gauss_lobatto
 
-    # initialize eos objects once, can pass to many tof4 objects
+    # Initialize eos objects
     try:
         hhe_eos = mh13_scvh.eos()
         z_eos = aneos_pure.eos('ice')
     except OSError:
-        raise Exception('failed to initialize eos; did you unpack eos_data.tar.gz?')
+        raise Exception('Failed to initialize eos; did you unpack eos_data.tar.gz?')
 
-    model = models.threeLayerModel(hhe_eos, z_eos, params, y_adjust_qty='y2_xy') # y2_xy will be varied during iterations to match desired y1_xy specified above
+    # Initialize the model
+    model = models.threeLayerModel(hhe_eos,z_eos,params,y_adjust_qty='y2_xy')
 
-    # finally make a tof4 instance and relax the model
+    # Finally, make a tof4 instance and relax the model
     t = gravity.tof4(model, params)
     t.relax()
+    return t
 
 def _PCL():
     # Return struct with command line arguments as fields.
@@ -107,7 +108,7 @@ def _PCL():
     mdlgroup.add_argument('--adjust-mrot', action='store_true',
         help="Don't sample rotation parameter (use obs.m instead).")
 
-    mdlgroup.add_argument('--nzones', type=int, default=496,
+    mdlgroup.add_argument('--nzones', type=int, default=4096,
         help="Number of zones (model resolution).")
 
     mdlgroup.add_argument('--f-ice', type=float, default=0.5,
@@ -155,4 +156,5 @@ def _PCL():
 if __name__ == "__main__":
     # Parse command line arguments
     clargs = _PCL()
-    print(clargs)
+    _main(clargs)
+    
