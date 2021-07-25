@@ -69,7 +69,7 @@ def _main(args):
     # Finally, make a tof4 instance and relax the model
     t = gravity.tof4(model, params)
     t.relax()
-    return t
+    return t, obs
 
 def _PCL():
     # Return struct with command line arguments as fields.
@@ -156,5 +156,11 @@ def _PCL():
 if __name__ == "__main__":
     # Parse command line arguments
     clargs = _PCL()
-    _main(clargs)
-    
+    mdl, obs = _main(clargs)
+    print(f"Model J2 = {mdl.j2}")
+    print(f"Model J4 = {mdl.j4}")
+    print(f"Model J6 = {mdl.j6}")
+    J_err = np.sqrt(((mdl.j2 - obs.J2)/obs.dJ2)**2 +
+                    ((mdl.j4 - obs.J4)/obs.dJ4)**2 +
+                    ((mdl.j6 - obs.J6)/obs.dJ6)**2)
+    print(f"Model-to-observation Mahalanobis distance = {J_err}")
