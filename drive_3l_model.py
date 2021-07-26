@@ -54,6 +54,10 @@ def _main(args):
     params['mtot_rtol']  = args.M_tol
     params['max_iters_outer'] = args.max_iters
 
+    params['drho_a'] = args.drho_a
+    params['drho_w'] = args.drho_w
+    params['drho_c'] = args.drho_c
+
     params['use_gauss_lobatto'] = args.use_gauss_lobatto
 
     # Initialize eos objects

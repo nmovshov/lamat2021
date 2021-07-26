@@ -1,6 +1,6 @@
 #------------------------------------------------------------------------------
-# Driver for simple 3-layer model. Run
-#   python driver_3l_model.py --help
+# Driver for simple 2-layer model. Run
+#   python driver_2l_model.py --help
 # for list of required and optional parameters.
 #------------------------------------------------------------------------------
 import sys, os
@@ -52,6 +52,10 @@ def _main(args):
     params['ymean_rtol'] = args.y_tol
     params['mtot_rtol']  = args.M_tol
     params['max_iters_outer'] = args.max_iters
+
+    params['drho_a'] = args.drho_a
+    params['drho_w'] = args.drho_w
+    params['drho_c'] = args.drho_c
 
     params['use_gauss_lobatto'] = args.use_gauss_lobatto
 
