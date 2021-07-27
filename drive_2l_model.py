@@ -37,7 +37,7 @@ def _main(args):
     params['mtot'] = obs.M*1000
     params['req'] = obs.a0*100
     params['nz'] = args.nzones
-    params['verbosity0'] = args.verbosity
+    params['verbosity'] = args.verbosity
     params['t1'] = obs.T0
     params['f_ice'] = args.f_ice
 
