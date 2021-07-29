@@ -57,6 +57,7 @@ def _main(args):
     params['drho_a'] = args.drho_a
     params['drho_w'] = args.drho_w
     params['drho_c'] = args.drho_c
+    params['drho_type'] = args.drho_type
 
     params['use_gauss_lobatto'] = args.use_gauss_lobatto
 
@@ -103,7 +104,7 @@ def _PCL():
     mdlgroup = parser.add_argument_group('Additional model options')
 
     mdlgroup.add_argument('--rc', type=float, default=0.1,
-        help="Initial guess of core radius (this is the model's " + 
+        help="Initial guess of core radius (this is the model's " +
              "adjustable parameter).")
 
     mdlgroup.add_argument('--rt', type=float, default=0.8,
@@ -137,6 +138,9 @@ def _PCL():
         help="I don't know what this does.")
 
     eosgroup = parser.add_argument_group('EOS options')
+
+    eosgroup.add_argument('--drho-type', choices=['sigmoid','gaussian','boxcar'],
+        help="Type of density modification to make.")
 
     eosgroup.add_argument('--drho-a', type=float, default=0.0,
         help="Force ad-hoc relative density change (usually negative).")
